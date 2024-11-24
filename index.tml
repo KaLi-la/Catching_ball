@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Catch the Ball Game</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+    canvas {
+      display: block;
+      background-color: #f0f8ff;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="gameCanvas"></canvas>
+
+  <script>
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+
+    // Set canvas size
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    // Paddle properties
+    const paddleWidth = 150;
+    const paddleHeight = 20;
+    let paddleX = (canvas.width - paddleWidth) / 2;
+
+    // Ball properties
+    const ballRadius = 15;
+    let ballX = Math.random() * (canvas.width - ballRadius * 2) + ballRadius;
+    let ballY = ballRadius;
+    let ballSpeed = 3;
+
+    // Score
+    let score = 0;
+
+    // Movement
+    let isLeftPressed = false;
+    let isRightPressed = false;
+
+    // Key event listeners
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowLeft") isLeftPressed = true;
+      if (e.key === "ArrowRight") isRightPressed = true;
+    });
+
+    document.addEventListener("keyup", (e) => {
+      if (e.key === "ArrowLeft") isLeftPressed = false;
+      if (e.key === "ArrowRight") isRightPressed = false;
+    });
+
+    // Game loop
+    function gameLoop() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Draw paddle
+      ctx.fillStyle = "#007acc";
+      ctx.fillRect(paddleX, canvas.height - paddleHeight - 10, paddleWidth, paddleHeight);
+
+      // Draw ball
+      ctx.beginPath();
+      ctx.arc(ballX, ballY, ballRadius, 0, Math.PI * 2);
+      ctx.fillStyle = "#ff4500";
+      ctx.fill();
+      ctx.closePath();
+
+      // Ball movement
+      ballY += ballSpeed;
+
+      // Paddle movement
+      if (isLeftPressed && paddleX > 0) {
+        paddleX -= 7;
+      }
+      if (isRightPressed && paddleX < canvas.width - paddleWidth) {
+        paddleX += 7;
+      }
+
+      // Ball collision with paddle
+      if (
+        ballY + ballRadius >= canvas.height - paddleHeight - 10 &&
+        ballX >= paddleX &&
+        ballX <= paddleX + paddleWidth
+      ) {
+        ballSpeed += 0.5; // Increase speed after each hit
+        ballY = ballRadius; // Reset ball position
+        ballX = Math.random() * (canvas.width - ballRadius * 2) + ballRadius; // Randomize horizontal position
+        score++;
+      }
+
+      // Ball misses the paddle
+      if (ballY > canvas.height) {
+        alert(`Game Over! Your score: ${score}`);
+        document.location.reload();
+      }
+
+      // Display score
+      ctx.fillStyle = "#000";
+      ctx.font = "24px Arial";
+      ctx.fillText(`Score: ${score}`, 10, 30);
+
+      requestAnimationFrame(gameLoop);
+    }
+
+    gameLoop();
+  </script>
+</body>
+</html>
